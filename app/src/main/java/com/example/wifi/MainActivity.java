@@ -1,6 +1,7 @@
 package com.example.wifi;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
@@ -81,5 +82,19 @@ public class MainActivity extends AppCompatActivity {
 
         wifiManager = (WifiManager)getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         wifiInfo = wifiManager.getConnectionInfo();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 0) {
+            if (wifiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLED ||
+                    wifiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLING) {
+                textViewInfo.setText("Wifi bekapcsolva");
+            }
+        } else if (wifiManager.getWifiState() == WifiManager.WIFI_STATE_DISABLED ||
+                    wifiManager.getWifiState() == WifiManager.WIFI_STATE_DISABLING) {
+            textViewInfo.setText("Wifi kikapcsolva");
+        }
     }
 }
