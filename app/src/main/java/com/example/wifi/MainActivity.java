@@ -5,11 +5,15 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.format.Formatter;
 import android.view.MenuItem;
 import android.widget.TextView;
 
@@ -34,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             switch (item.getItemId()) {
                 case R.id.wifi_on:
-                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES) {
+                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
                         textViewInfo.setText("Nincs jogosultságod a wifi átállításához!");
                         Intent panelIntent = new Intent(Settings.Panel.ACTION_WIFI);
                         startActivityForResult(panelIntent, 0);
@@ -44,8 +48,27 @@ public class MainActivity extends AppCompatActivity {
                     }
                     break;
                 case R.id.wifi_off:
+                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+                        textViewInfo.setText("Nincs jogosultságod a wifi átállításához!");
+                        Intent panelIntent = new Intent(Settings.Panel.ACTION_WIFI);
+                        startActivityForResult(panelIntent, 0);
+                    } else {
+                        wifiManager.setWifiEnabled(false);
+                        textViewInfo.setText("Wifi kikapcsolva!");
+                    }
                     break;
                 case R.id.wifi_info:
+                    ConnectivityManager connectivityManager = (ConnectivityManager)
+                            getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo networkInfo =
+                            connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+                    if (networkInfo.isConnected()) {
+                        int ip_number = wifiInfo.getIpAddress();
+                        String ipConverted = Formatter.formatIpAddress(ip_number);
+                        textViewInfo.setText("IP cím: " + ipConverted);
+                    } else {
+                        textViewInfo.setText("Nem csatlakoztál fel a wifire!");
+                    }
                     break;
             }
             return true;
